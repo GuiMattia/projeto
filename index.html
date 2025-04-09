@@ -100,6 +100,52 @@
         }
 
         // Função para adicionar o registro na tabela
+        function adicionarRegistro(data, inicio, fim, horasTrabalhadas) {
+            const tabela = document.getElementById('registroHoras').getElementsByTagName('tbody')[0];
+            const novaLinha = tabela.insertRow();
+
+            novaLinha.innerHTML = `
+                <td>${data}</td>
+                <td>${inicio}</td>
+                <td>${fim}</td>
+                <td>${horasTrabalhadas} horas</td>
+            `;
+        }
+
+        // Função para salvar os dados no localStorage
+        function salvarDadosNoLocalStorage() {
+            const registros = [];
+            const tabela = document.getElementById('registroHoras').getElementsByTagName('tbody')[0];
+            const linhas = tabela.getElementsByTagName('tr');
+            
+            for (let linha of linhas) {
+                const cols = linha.getElementsByTagName('td');
+                const data = cols[0].textContent;
+                const inicio = cols[1].textContent;
+                const fim = cols[2].textContent;
+                const horas = cols[3].textContent;
+
+                registros.push({ data, inicio, fim, horas });
+            }
+
+            localStorage.setItem('registros', JSON.stringify(registros));
+        }
+
+        // Função para carregar os dados do localStorage
+        function carregarDadosDoLocalStorage() {
+            const registrosSalvos = JSON.parse(localStorage.getItem('registros'));
+
+            if (registrosSalvos) {
+                for (let registro of registrosSalvos) {
+                    adicionarRegistro(registro.data, registro.inicio, registro.fim, registro.horas);
+                }
+            }
+        }
+
+        // Carregar os dados ao carregar a página
+        window.onload = carregarDadosDoLocalStorage;
+
+        // Event listener para adicionar novo registro
         document.getElementById('formRegistro').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -114,18 +160,13 @@
 
             const horasTrabalhadas = calcularHoras(inicio, fim);
 
-            // Criando uma nova linha na tabela
-            const tabela = document.getElementById('registroHoras').getElementsByTagName('tbody')[0];
-            const novaLinha = tabela.insertRow();
+            // Adiciona o novo registro na tabela
+            adicionarRegistro(data, inicio, fim, horasTrabalhadas);
 
-            novaLinha.innerHTML = `
-                <td>${data}</td>
-                <td>${inicio}</td>
-                <td>${fim}</td>
-                <td>${horasTrabalhadas} horas</td>
-            `;
+            // Salvar dados no localStorage
+            salvarDadosNoLocalStorage();
 
-            // Limpando os campos do formulário
+            // Limpar os campos do formulário
             document.getElementById('formRegistro').reset();
         });
     </script>
